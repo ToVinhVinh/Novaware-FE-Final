@@ -182,6 +182,22 @@ const UserOrderScreen = ({ match, history }) => {
   const orderItems = normalizedOrder?.items || [];
   const currentUserId = userInfo?._id || userInfo?.id || normalizedOrder?.userId;
 
+  console.log("DEBUG ORDER SCREEN FULL:", {
+    userInfo: JSON.parse(JSON.stringify(userInfo || {})),
+    normalizedOrder: JSON.parse(JSON.stringify(normalizedOrder || {}))
+  });
+
+  console.log("DEBUG ORDER SCREEN SUMMARY:", {
+    orderId,
+    userInfoId: userInfo?._id || userInfo?.id,
+    orderUserId: normalizedOrder?.userId,
+    currentUserId,
+    items: orderItems.map(i => ({
+      name: i.name,
+      reviewers: i.reviews?.map(r => r.user_id || r.user || r.userId)
+    }))
+  });
+
   if (!loading && normalizedOrder) {
     const addDecimals = (num) => {
       return (Math.round(num * 100) / 100).toFixed(2);
@@ -451,10 +467,17 @@ const UserOrderScreen = ({ match, history }) => {
                                               if (typeof u === "string") return u;
                                               return u._id || u.id || "";
                                             };
-                                            const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
+                                            const curId = getUserID(userInfo);
+                                            const curName = (userInfo?.name || "").trim().toLowerCase();
+
                                             const hasReviewed = item.reviews?.some((r) => {
                                               const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId);
-                                              return String(rId).trim() === String(curId).trim() && rId !== "";
+                                              const rName = (r.user_name || r.name || "").trim().toLowerCase();
+
+                                              const idMatch = String(rId).trim() !== "" && String(rId).trim() === String(curId).trim();
+                                              const nameMatch = curName !== "" && rName !== "" && rName === curName;
+
+                                              return idMatch || nameMatch;
                                             });
                                             return (
                                               <Button
@@ -498,11 +521,21 @@ const UserOrderScreen = ({ match, history }) => {
                                             if (typeof u === "string") return u;
                                             return u._id || u.id || "";
                                           };
-                                          const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
+                                          const curId = getUserID(userInfo);
+                                          const curName = (userInfo?.name || "").trim().toLowerCase();
+
                                           const hasReviewed = item.reviews?.some((r) => {
                                             const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId);
-                                            return String(rId).trim() === String(curId).trim() && rId !== "";
+                                            const rName = (r.user_name || r.name || "").trim().toLowerCase();
+
+                                            const idMatch = String(rId).trim() !== "" && String(rId).trim() === String(curId).trim();
+                                            const nameMatch = curName !== "" && rName !== "" && rName === curName;
+
+                                            const match = idMatch || nameMatch;
+                                            console.log(`DEBUG REVIEW: Item: ${item.name}, Current: [ID:${curId}, Name:${curName}], ReviewAuthor: [ID:${rId}, Name:${rName}], Match: ${match} (ID:${idMatch}, Name:${nameMatch})`);
+                                            return match;
                                           });
+                                          console.log(`DEBUG FINAL: Item: ${item.name}, hasReviewed: ${hasReviewed}`);
                                           return (
                                             <Button
                                               variant="outlined"
