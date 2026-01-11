@@ -444,19 +444,27 @@ const UserOrderScreen = ({ match, history }) => {
                                       </Box>
                                       {normalizedOrder.isDelivered && (
                                         <Box mt={2} display="flex" justifyContent="center">
-                                          <Button
-                                            variant="outlined"
-                                            color="secondary"
-                                            size="small"
-                                            onClick={() => handleOpenReviewModal(item)}
-                                            fullWidth
-                                            style={{
-                                              borderRadius: 6,
-                                              textTransform: "none",
-                                            }}
-                                          >
-                                            Review Product
-                                          </Button>
+                                          {(() => {
+                                            const hasReviewed = item.reviews?.some(
+                                              (r) => (r.user_id || r.user) === (userInfo?._id || userInfo?.id)
+                                            );
+                                            return (
+                                              <Button
+                                                variant="outlined"
+                                                color="secondary"
+                                                size="small"
+                                                onClick={() => handleOpenReviewModal(item)}
+                                                disabled={hasReviewed}
+                                                fullWidth
+                                                style={{
+                                                  borderRadius: 6,
+                                                  textTransform: "none",
+                                                }}
+                                              >
+                                                {hasReviewed ? "Product Reviewed" : "Review Product"}
+                                              </Button>
+                                            );
+                                          })()}
                                         </Box>
                                       )}
                                     </Hidden>
@@ -475,18 +483,26 @@ const UserOrderScreen = ({ match, history }) => {
                                     </TableCell>
                                     {normalizedOrder.isDelivered && (
                                       <TableCell align="right">
-                                        <Button
-                                          variant="outlined"
-                                          color="secondary"
-                                          size="small"
-                                          onClick={() => handleOpenReviewModal(item)}
-                                          style={{
-                                            borderRadius: 6,
-                                            textTransform: "none",
-                                          }}
-                                        >
-                                          Review Product
-                                        </Button>
+                                        {(() => {
+                                          const hasReviewed = item.reviews?.some(
+                                            (r) => (r.user_id || r.user) === (userInfo?._id || userInfo?.id)
+                                          );
+                                          return (
+                                            <Button
+                                              variant="outlined"
+                                              color="secondary"
+                                              size="small"
+                                              onClick={() => handleOpenReviewModal(item)}
+                                              disabled={hasReviewed}
+                                              style={{
+                                                borderRadius: 6,
+                                                textTransform: "none",
+                                              }}
+                                            >
+                                              {hasReviewed ? "Product Reviewed" : "Review Product"}
+                                            </Button>
+                                          );
+                                        })()}
                                       </TableCell>
                                     )}
                                   </Hidden>
