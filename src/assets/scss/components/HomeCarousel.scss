@@ -1,0 +1,79 @@
+// Swiper Navigation Buttons
+.swiper-button-next,
+.swiper-button-prev {
+  color: white !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50% !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  &::after {
+    font-size: 20px !important;
+    font-weight: bold !important;
+  }
+}
+
+// Custom Pagination Bullets - Override tất cả pagination bullets
+.swiper-pagination .swiper-pagination-bullet,
+.swiper-pagination-bullet,
+.swiper-pagination-bullet-custom {
+  width: 12px !important;
+  height: 12px !important;
+  background: rgba(156, 163, 175, 0.6) !important; // gray nhạt
+  border-radius: 50% !important; // Đảm bảo là hình tròn
+  margin: 0 6px !important;
+  transition: all 0.3s ease !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+  border: none !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  cursor: pointer !important; // Hiển thị cursor pointer khi hover
+}
+
+.swiper-pagination .swiper-pagination-bullet-active,
+.swiper-pagination-bullet-active,
+.swiper-pagination-bullet-custom-active {
+  background: white !important;
+  outline: 2px solid white !important;
+  outline-offset: 3px !important;
+  width: 14px !important;
+  height: 14px !important;
+  border-radius: 50% !important; // Đảm bảo là hình tròn
+  display: inline-block !important;
+  vertical-align: middle !important;
+  border: none !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+}
+
+.swiper-pagination {
+  bottom: 30px !important;
+  
+  // Đảm bảo tất cả bullets là hình tròn
+  * {
+    border-radius: 50% !important;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 40px !important;
+    height: 40px !important;
+    
+    &::after {
+      font-size: 16px !important;
+    }
+  }
+  
+  .swiper-pagination {
+    bottom: 20px !important;
+  }
+}

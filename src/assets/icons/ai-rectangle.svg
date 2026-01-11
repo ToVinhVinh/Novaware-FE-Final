@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" fill="none" viewBox="0 0 128 128" id="ai-rectangle">
+  <path stroke="#1B1B1B" stroke-linecap="round" stroke-width="6" d="M46 76L58.0844 52.2089C58.1495 52.0807 58.281 52 58.4248 52V52C58.5725 52 58.7069 52.0852 58.77 52.2187L70 76M52 70H63M81 76V52"></path>
+  <rect width="82" height="82" x="23" y="23" stroke="#1B1B1B" stroke-width="6" rx="20"></rect>
+</svg>
