@@ -3,13 +3,31 @@
  */
 
 /**
+ * Ensures the date is treated as UTC if it's an ISO string without timezone
+ * @param {string|Date} dateString 
+ * @returns {Date}
+ */
+export const normalizeToUtc = (dateString) => {
+    if (!dateString) return null;
+    if (dateString instanceof Date) return dateString;
+
+    // If it's an ISO string without timezone indicator (no Z, no +/- offset), append Z
+    if (typeof dateString === 'string' && dateString.includes('T') && !dateString.includes('Z') && !/[+-]\d{2}:?\d{2}$/.test(dateString)) {
+        return new Date(dateString + 'Z');
+    }
+    return new Date(dateString);
+};
+
+/**
  * Format date to Vietnam timezone (UTC+7) and Vietnamese format
  * @param {string|Date} dateString - Date string or Date object to format
  * @returns {string} Formatted date string in format: DD/MM/YYYY HH:mm
  */
 export const formatToVietnamTime = (dateString) => {
     try {
-        const utcDate = new Date(dateString);
+        const utcDate = normalizeToUtc(dateString);
+        if (!utcDate || isNaN(utcDate.getTime())) return dateString;
+
         // Add 7 hours (in milliseconds) for Vietnam timezone
         const date = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
 
@@ -33,7 +51,9 @@ export const formatToVietnamTime = (dateString) => {
  */
 export const formatToVietnamTimeWithSeconds = (dateString) => {
     try {
-        const utcDate = new Date(dateString);
+        const utcDate = normalizeToUtc(dateString);
+        if (!utcDate || isNaN(utcDate.getTime())) return dateString;
+
         const date = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
 
         const day = String(date.getUTCDate()).padStart(2, '0');
@@ -56,7 +76,9 @@ export const formatToVietnamTimeWithSeconds = (dateString) => {
  */
 export const formatToVietnamDate = (dateString) => {
     try {
-        const utcDate = new Date(dateString);
+        const utcDate = normalizeToUtc(dateString);
+        if (!utcDate || isNaN(utcDate.getTime())) return dateString;
+
         const date = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
 
         const day = String(date.getUTCDate()).padStart(2, '0');

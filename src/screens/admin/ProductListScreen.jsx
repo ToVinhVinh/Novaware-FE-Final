@@ -22,6 +22,10 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Slider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@material-ui/core";
 import {
   DataGrid,
@@ -34,7 +38,9 @@ import {
   AiOutlinePlus,
   AiOutlineSearch,
   AiOutlineFilter,
+  AiOutlineClear,
 } from "react-icons/ai";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import Meta from "../../components/Meta";
 import Loader from "../../components/Loader";
@@ -112,6 +118,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const GENDER_OPTIONS = ["Men", "Women", "Boys", "Girls", "Unisex"];
+const USAGE_OPTIONS = ["Casual", "Formal", "Sports", "Kids"];
+
 const ProductListScreen = ({ history }) => {
   const classes = useStyles();
 
@@ -119,7 +128,10 @@ const ProductListScreen = ({ history }) => {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedArticleTypes, setSelectedArticleTypes] = useState([]);
+  const [selectedGenders, setSelectedGenders] = useState([]);
+  const [selectedUsages, setSelectedUsages] = useState([]);
+  const [selectedBrands, setSelectedBrands] = useState([]);
   const [ordering, setOrdering] = useState("");
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
@@ -140,8 +152,20 @@ const ProductListScreen = ({ history }) => {
     queryParams.search = search;
   }
 
-  if (selectedCategories.length > 0) {
-    queryParams.category = selectedCategories[0];
+  if (selectedArticleTypes.length > 0) {
+    queryParams.articleType = selectedArticleTypes.join(',');
+  }
+
+  if (selectedGenders.length > 0) {
+    queryParams.gender = selectedGenders.join(',');
+  }
+
+  if (selectedUsages.length > 0) {
+    queryParams.usage = selectedUsages.join(',');
+  }
+
+  if (selectedBrands.length > 0) {
+    queryParams.brand = selectedBrands.join(',');
   }
 
   if (ordering) {
@@ -333,21 +357,65 @@ const ProductListScreen = ({ history }) => {
     setPage(0);
   };
 
-  const handleCategoryToggle = (categoryId) => {
-    setSelectedCategories((prev) => {
-      const idString = String(categoryId);
-      const isCurrentlySelected = prev.some((id) => String(id) === idString);
+  const handleOrderingChange = (event) => {
+    setOrdering(event.target.value);
+    setPage(0);
+  };
+
+  const handleArticleTypeToggle = (articleType) => {
+    setSelectedArticleTypes((prev) => {
+      const isCurrentlySelected = prev.includes(articleType);
       if (isCurrentlySelected) {
-        return prev.filter((id) => String(id) !== idString);
+        return prev.filter((type) => type !== articleType);
       } else {
-        return [...prev, categoryId];
+        return [...prev, articleType];
       }
     });
     setPage(0);
   };
 
-  const handleOrderingChange = (event) => {
-    setOrdering(event.target.value);
+  const handleGenderToggle = (gender) => {
+    setSelectedGenders((prev) => {
+      const isCurrentlySelected = prev.includes(gender);
+      if (isCurrentlySelected) {
+        return prev.filter((g) => g !== gender);
+      } else {
+        return [...prev, gender];
+      }
+    });
+    setPage(0);
+  };
+
+  const handleUsageToggle = (usage) => {
+    setSelectedUsages((prev) => {
+      const isCurrentlySelected = prev.includes(usage);
+      if (isCurrentlySelected) {
+        return prev.filter((u) => u !== usage);
+      } else {
+        return [...prev, usage];
+      }
+    });
+    setPage(0);
+  };
+
+  const handleBrandToggle = (brand) => {
+    setSelectedBrands((prev) => {
+      const isCurrentlySelected = prev.includes(brand);
+      if (isCurrentlySelected) {
+        return prev.filter((b) => b !== brand);
+      } else {
+        return [...prev, brand];
+      }
+    });
+    setPage(0);
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedArticleTypes([]);
+    setSelectedGenders([]);
+    setSelectedUsages([]);
+    setSelectedBrands([]);
+    setOrdering("");
     setPage(0);
   };
 
@@ -427,7 +495,7 @@ const ProductListScreen = ({ history }) => {
                   startIcon={<AiOutlineFilter />}
                   onClick={() => setIsFilterExpanded(!isFilterExpanded)}
                 >
-                  Filter by Category
+                  {isFilterExpanded ? "Hide Filters" : "Show Filters"}
                 </Button>
                 <Button
                   variant="contained"
@@ -442,67 +510,135 @@ const ProductListScreen = ({ history }) => {
             </Box>
             <Collapse in={isFilterExpanded}>
               <Box className={classes.filterContainer}>
-                {/* Categories Filter */}
-                <Box className={classes.filterSection}>
-                  {loadingCategories ? (
-                    <Typography variant="body2" color="textSecondary">
-                      Loading categories...
-                    </Typography>
-                  ) : categories.length === 0 ? (
-                    <Typography variant="body2" color="textSecondary">
-                      No categories available
-                    </Typography>
-                  ) : (
-                    <Box>
+                <Grid container spacing={3}>
+                  {/* Article Type Filter */}
+                  <Grid item xs={12}>
+                    <Box className={classes.filterSection}>
                       <Typography variant="subtitle2" gutterBottom>
-                        Select Categories:
+                        Article Types:
                       </Typography>
                       <Box className={classes.categoryList}>
-                        {categories.map((category) => {
-                          const categoryId = category._id || category.id;
-                          const isSelected = selectedCategories.some((id) => String(id) === String(categoryId));
+                        {loadingCategories ? (
+                          <Typography variant="body2" color="textSecondary">Loading...</Typography>
+                        ) : (
+                          (categoriesResponse?.data?.articleTypes || []).map((type) => {
+                            const isSelected = selectedArticleTypes.includes(type);
+                            return (
+                              <Chip
+                                key={type}
+                                label={type}
+                                className={classes.categoryChip}
+                                clickable
+                                color={isSelected ? "primary" : "default"}
+                                onClick={() => handleArticleTypeToggle(type)}
+                                onDelete={isSelected ? () => handleArticleTypeToggle(type) : undefined}
+                              />
+                            );
+                          })
+                        )}
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Gender Filter */}
+                  <Grid item xs={12} md={4}>
+                    <Box className={classes.filterSection}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Gender:
+                      </Typography>
+                      <Box className={classes.categoryList}>
+                        {GENDER_OPTIONS.map((option) => {
+                          const isSelected = selectedGenders.includes(option);
                           return (
                             <Chip
-                              key={categoryId}
-                              label={category.name}
+                              key={option}
+                              label={option}
                               className={classes.categoryChip}
                               clickable
                               color={isSelected ? "primary" : "default"}
-                              onClick={() => handleCategoryToggle(categoryId)}
-                              onDelete={isSelected ? () => handleCategoryToggle(categoryId) : undefined}
+                              onClick={() => handleGenderToggle(option)}
+                              onDelete={isSelected ? () => handleGenderToggle(option) : undefined}
                             />
                           );
                         })}
                       </Box>
                     </Box>
-                  )}
-                </Box>
+                  </Grid>
 
-                {/* Ordering Select */}
-                <FormControl variant="outlined" className={classes.orderingSelect} size="small">
-                  <InputLabel>Sort By</InputLabel>
-                  <Select
-                    value={ordering}
-                    onChange={handleOrderingChange}
-                    label="Sort By"
-                  >
-                    <MenuItem value="">None</MenuItem>
-                    <MenuItem value="name">Name (A-Z)</MenuItem>
-                    <MenuItem value="-name">Name (Z-A)</MenuItem>
-                    <MenuItem value="price">Price (Low to High)</MenuItem>
-                    <MenuItem value="-price">Price (High to Low)</MenuItem>
-                    <MenuItem value="createdAt">Date (Oldest First)</MenuItem>
-                    <MenuItem value="-createdAt">Date (Newest First)</MenuItem>
-                  </Select>
-                </FormControl>
+                  {/* Usage Filter */}
+                  <Grid item xs={12} md={4}>
+                    <Box className={classes.filterSection}>
+                      <Typography variant="subtitle2" gutterBottom>
+                        Usage:
+                      </Typography>
+                      <Box className={classes.categoryList}>
+                        {USAGE_OPTIONS.map((option) => {
+                          const isSelected = selectedUsages.includes(option);
+                          return (
+                            <Chip
+                              key={option}
+                              label={option}
+                              className={classes.categoryChip}
+                              clickable
+                              color={isSelected ? "primary" : "default"}
+                              onClick={() => handleUsageToggle(option)}
+                              onDelete={isSelected ? () => handleUsageToggle(option) : undefined}
+                            />
+                          );
+                        })}
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
               </Box>
             </Collapse>
+
+            {/* Active Filters Bar */}
+            {(selectedArticleTypes.length > 0 ||
+              selectedGenders.length > 0 ||
+              selectedUsages.length > 0) && (
+                <Box my={2} display="flex" flexWrap="wrap" alignItems="center">
+                  <Typography variant="body2" color="textSecondary" style={{ marginRight: 8 }}>
+                    Active Filters:
+                  </Typography>
+                  {selectedArticleTypes.map((type) => (
+                    <Chip
+                      key={type}
+                      label={type}
+                      size="small"
+                      onDelete={() => handleArticleTypeToggle(type)}
+                      color="secondary"
+                      style={{ marginRight: 4, marginBottom: 4 }}
+                    />
+                  ))}
+                  {selectedGenders.map((g) => (
+                    <Chip
+                      key={g}
+                      label={g}
+                      size="small"
+                      onDelete={() => handleGenderToggle(g)}
+                      color="secondary"
+                      style={{ marginRight: 4, marginBottom: 4 }}
+                    />
+                  ))}
+                  {selectedUsages.map((u) => (
+                    <Chip
+                      key={u}
+                      label={u}
+                      size="small"
+                      onDelete={() => handleUsageToggle(u)}
+                      color="secondary"
+                      style={{ marginRight: 4, marginBottom: 4 }}
+                    />
+                  ))}
+                </Box>
+              )}
             <div style={{ clear: "both" }}></div>{" "}
           </div>
         </Grid>
       </Grid>
       {loading ? (
-        <Loader></Loader>
+        <Loader />
       ) : error ? (
         <Message>{error?.message || String(error)}</Message>
       ) : (
@@ -548,7 +684,8 @@ const ProductListScreen = ({ history }) => {
             />
           </Grid>
         </Grid>
-      )}
+      )
+      }
       <ConfirmDialog
         open={confirmDialog.open}
         onClose={handleCloseConfirmDialog}
@@ -560,7 +697,7 @@ const ProductListScreen = ({ history }) => {
         confirmColor="secondary"
         loading={deleteProductMutation.isLoading}
       />
-    </Container>
+    </Container >
   );
 };
 

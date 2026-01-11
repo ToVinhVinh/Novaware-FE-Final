@@ -23,6 +23,7 @@ import {
   Legend,
 } from "recharts";
 import OrderSummary from "../Statistics/OrderSummary";
+import { normalizeToUtc } from "../../utils/dateUtils";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -85,8 +86,8 @@ const OrderStatistics = ({
 
       const { count, revenue, delivered, cancelled } = orders.reduce(
         (acc, order) => {
-          const orderDate = new Date(order.createdAt);
-          if (isSameDay(orderDate, startOfSelectedDate)) {
+          const orderDate = normalizeToUtc(order.createdAt);
+          if (orderDate && isSameDay(orderDate, startOfSelectedDate)) {
             acc.count++;
             acc.revenue += order.totalPrice;
             if (order.isDelivered) {

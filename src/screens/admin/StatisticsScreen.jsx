@@ -39,7 +39,6 @@ import {
 	useGetProductCategories,
 	useGetSalesByGender,
 } from '../../hooks/api/useAdminStats';
-import { getAdminStats } from '../../lib/api/adminStats';
 import { formatToVietnamDate } from '../../utils/dateUtils';
 import Meta from '../../components/Meta';
 import Message from '../../components/Message';

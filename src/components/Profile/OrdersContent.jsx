@@ -22,6 +22,7 @@ import CancelIcon from "@material-ui/icons/Cancel";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import Message from "../Message";
 import Loader from "../Loader";
+import { formatToVietnamDate } from "../../utils/dateUtils";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -192,7 +193,7 @@ const OrdersContent = ({ orders, loadingOrders, errorOrders }) => {
                 let statusLabel = "Pending";
                 let statusIcon = <HourglassEmptyIcon style={{ color: "#ea580c" }} />;
                 let statusClass = classes.chipPending;
-                
+
                 if (isCancelled) {
                   statusLabel = "Cancelled";
                   statusIcon = <CancelIcon style={{ color: "#991b1b" }} />;
@@ -250,7 +251,7 @@ const OrdersContent = ({ orders, loadingOrders, errorOrders }) => {
                       </TableCell>
                     </Hidden>
                     <TableCell align="right" className={classes.dateCell}>
-                      {createdAt ? new Date(createdAt).toLocaleDateString() : "N/A"}
+                      {createdAt ? formatToVietnamDate(createdAt) : "N/A"}
                     </TableCell>
                     <TableCell align="right">
                       <Chip
