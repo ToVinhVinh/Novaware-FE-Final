@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme) => ({
   },
   dialogTitle: {
     display: "flex",
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "16px 24px",
@@ -125,7 +126,7 @@ const ReviewProductModal = ({ open, onClose, product, userId, orderId }) => {
 
   return (
     <Dialog open={open} onClose={onClose} className={classes.dialog} maxWidth="sm" fullWidth>
-      <DialogTitle className={classes.dialogTitle}>
+      <DialogTitle className={classes.dialogTitle} disableTypography>
         <Typography variant="h6">Write a Review</Typography>
         <IconButton onClick={onClose} className={classes.closeButton} size="small">
           <CloseIcon />
@@ -188,7 +189,6 @@ const ReviewProductModal = ({ open, onClose, product, userId, orderId }) => {
           onClick={handleSubmit}
           variant="contained"
           color="secondary"
-          className={classes.submitButton}
           disabled={createReviewMutation.isLoading}
         >
           {createReviewMutation.isLoading ? "Submitting..." : "Submit Review"}

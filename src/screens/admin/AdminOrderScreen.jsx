@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import { toast } from "react-toastify";
 import { Link as RouterLink } from "react-router-dom";
-import { useGetOrder, useUpdateOrderToDelivered, useConfirmOrder } from "../../hooks/api/useOrder";
+import { useGetOrder, useUpdateOrderToDelivered, useConfirmOrder, useUpdateOrderToPaid } from "../../hooks/api/useOrder";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import CloseIcon from "@material-ui/icons/Close";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
@@ -48,6 +49,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  IconButton,
 } from "@material-ui/core";
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
@@ -211,6 +218,30 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#f5f5f5",
     color: "#616161",
   },
+  dialog: {
+    "& .MuiDialog-paper": {
+      borderRadius: 12,
+      maxWidth: 500,
+    },
+  },
+  dialogTitle: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "16px 24px",
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
+  closeButton: {
+    color: theme.palette.grey[500],
+  },
+  dialogContent: {
+    padding: "24px",
+  },
+  submitButtonModal: {
+    borderRadius: 8,
+    padding: "10px 24px",
+  },
 }));
 
 const AdminOrderScreen = ({ match, history }) => {
@@ -218,6 +249,15 @@ const AdminOrderScreen = ({ match, history }) => {
   const orderId = match.params.id;
 
   const userInfo = useSelector((state) => state.userLogin?.userInfo);
+
+  // Confirmation dialog states
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: null, // 'shipping' or 'payment'
+    newValue: null,
+    title: '',
+    message: '',
+  });
 
   const { data: orderResponse, isLoading: loading, error } = useGetOrder(orderId);
   const order = orderResponse?.data?.order;
@@ -227,6 +267,9 @@ const AdminOrderScreen = ({ match, history }) => {
 
   const confirmOrderMutation = useConfirmOrder();
   const { isLoading: loadingConfirm, isSuccess: successConfirm } = confirmOrderMutation;
+
+  const payOrderMutation = useUpdateOrderToPaid();
+  const { isLoading: loadingPay, isSuccess: successPay } = payOrderMutation;
 
   useEffect(() => {
     if (!userInfo || !userInfo.isAdmin) {
@@ -245,6 +288,12 @@ const AdminOrderScreen = ({ match, history }) => {
       toast.success("Order confirmed successfully!");
     }
   }, [successConfirm]);
+
+  useEffect(() => {
+    if (successPay) {
+      toast.success("Payment status updated successfully!");
+    }
+  }, [successPay]);
 
   const handleConfirm = async () => {
     if (order) {
@@ -268,11 +317,85 @@ const AdminOrderScreen = ({ match, history }) => {
 
   const handleStatusChange = (event) => {
     const newStatus = event.target.value;
+    const currentStatus = order.is_delivered || order.isDelivered
+      ? "delivered"
+      : order.is_processing || order.isProcessing
+        ? "confirmed"
+        : "pending";
+
+    if (newStatus === currentStatus) return;
+
+    let title = '';
+    let message = '';
+
     if (newStatus === "confirmed") {
-      handleConfirm();
+      title = 'Confirm Order';
+      message = 'Are you sure you want to confirm this order? This action will notify the customer.';
     } else if (newStatus === "delivered") {
-      deliverHandler();
+      title = 'Mark as Delivered';
+      message = 'Are you sure you want to mark this order as delivered? This action will update the order status.';
     }
+
+    setConfirmDialog({
+      open: true,
+      type: 'shipping',
+      newValue: newStatus,
+      title,
+      message,
+    });
+  };
+
+  const handlePaymentStatusChange = (event) => {
+    const newPaymentStatus = event.target.value;
+    const currentPaymentStatus = order.is_paid || order.isPaid ? "paid" : "unpaid";
+
+    if (newPaymentStatus === currentPaymentStatus) return;
+
+    if (order && newPaymentStatus === "paid") {
+      setConfirmDialog({
+        open: true,
+        type: 'payment',
+        newValue: newPaymentStatus,
+        title: 'Confirm Payment',
+        message: 'Are you sure you want to mark this order as paid? This will update the payment status.',
+      });
+    }
+  };
+
+  const handleConfirmDialogClose = () => {
+    setConfirmDialog({
+      open: false,
+      type: null,
+      newValue: null,
+      title: '',
+      message: '',
+    });
+  };
+
+  const handleConfirmDialogAccept = async () => {
+    const { type, newValue } = confirmDialog;
+
+    try {
+      if (type === 'shipping') {
+        if (newValue === "confirmed") {
+          await handleConfirm();
+        } else if (newValue === "delivered") {
+          await deliverHandler();
+        }
+      } else if (type === 'payment' && newValue === "paid") {
+        await payOrderMutation.mutateAsync({
+          id: order.id || order._id,
+          body: {
+            payment_method: order.payment_method || order.paymentMethod,
+            payment_result: order.payment_result || order.paymentResult || {},
+          },
+        });
+      }
+    } catch (error) {
+      toast.error(`Failed to update ${type} status`);
+    }
+
+    handleConfirmDialogClose();
   };
 
   // Calculate items price
@@ -557,7 +680,7 @@ const AdminOrderScreen = ({ match, history }) => {
                       <Divider style={{ margin: "16px 0" }} />
 
                       <FormControl fullWidth variant="outlined" size="small">
-                        <InputLabel id="status-select-label">Update Status</InputLabel>
+                        <InputLabel id="status-select-label">Update Shipping Status</InputLabel>
                         <Select
                           labelId="status-select-label"
                           id="status-select"
@@ -569,7 +692,7 @@ const AdminOrderScreen = ({ match, history }) => {
                                 : "pending"
                           }
                           onChange={handleStatusChange}
-                          label="Update Status"
+                          label="Update Shipping Status"
                           disabled={order.is_delivered || order.isDelivered}
                         >
                           <MenuItem value="pending" disabled>
@@ -594,7 +717,31 @@ const AdminOrderScreen = ({ match, history }) => {
                         </Select>
                       </FormControl>
 
-                      {(loadingConfirm || loadingDeliver) && (
+                      <Box mt={2}>
+                        <FormControl fullWidth variant="outlined" size="small">
+                          <InputLabel id="payment-status-select-label">Update Payment Status</InputLabel>
+                          <Select
+                            labelId="payment-status-select-label"
+                            id="payment-status-select"
+                            value={order.is_paid || order.isPaid ? "paid" : "unpaid"}
+                            onChange={handlePaymentStatusChange}
+                            label="Update Payment Status"
+                            disabled={order.is_paid || order.isPaid}
+                          >
+                            <MenuItem value="unpaid" disabled>
+                              Unpaid
+                            </MenuItem>
+                            <MenuItem
+                              value="paid"
+                              disabled={order.is_paid || order.isPaid}
+                            >
+                              Paid
+                            </MenuItem>
+                          </Select>
+                        </FormControl>
+                      </Box>
+
+                      {(loadingConfirm || loadingDeliver || loadingPay) && (
                         <Box mt={2}>
                           <Loader />
                         </Box>
@@ -644,6 +791,38 @@ const AdminOrderScreen = ({ match, history }) => {
                   </Card>
                 </Grid>
               </Grid>
+
+              <Dialog
+                open={confirmDialog.open}
+                onClose={handleConfirmDialogClose}
+                className={classes.dialog}
+                maxWidth="xs"
+                fullWidth
+              >
+                <DialogTitle className={classes.dialogTitle} disableTypography>
+                  <Typography variant="h6">{confirmDialog.title}</Typography>
+                  <IconButton onClick={handleConfirmDialogClose} className={classes.closeButton} size="small">
+                    <CloseIcon />
+                  </IconButton>
+                </DialogTitle>
+                <DialogContent className={classes.dialogContent}>
+                  <DialogContentText>
+                    {confirmDialog.message}
+                  </DialogContentText>
+                </DialogContent>
+                <DialogActions style={{ padding: "16px 24px" }}>
+                  <Button onClick={handleConfirmDialogClose} color="default">
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleConfirmDialogAccept}
+                    color="secondary"
+                    variant="contained"
+                  >
+                    Confirm
+                  </Button>
+                </DialogActions>
+              </Dialog>
             </div>
           )
         )}
