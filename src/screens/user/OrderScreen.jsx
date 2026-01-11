@@ -39,6 +39,7 @@ import paypalImage from "../../assets/images/paypal.png";
 import StripePayment from "../../components/StripePayment";
 import ConfirmDialog from "../../components/Modal/ConfirmDialog";
 import ReviewProductModal from "../../components/Modal/ReviewProductModal";
+import { formatToVietnamTime } from "../../utils/dateUtils";
 
 const useStyles = makeStyles((theme) => ({
   breadcrumbsContainer: {
@@ -323,7 +324,7 @@ const UserOrderScreen = ({ match, history }) => {
                   />
                   {normalizedOrder.isDelivered ? (
                     <Message severity="success" mt={8}>
-                      Delivered on {normalizedOrder.deliveredAt ? new Date(normalizedOrder.deliveredAt).toLocaleString() : "N/A"}
+                      {"Delivered on " + (normalizedOrder.deliveredAt ? formatToVietnamTime(normalizedOrder.deliveredAt) : "N/A")}
                     </Message>
                   ) : (
                     <Typography variant="body2" color="textSecondary" mt={2}>
@@ -340,7 +341,7 @@ const UserOrderScreen = ({ match, history }) => {
                   <ListItemText primary="Processing Status" />
                   {normalizedOrder.isProcessing ? (
                     <Message severity="success" mt={8} mb={8}>
-                      Confirmed at {normalizedOrder.updatedAt ? new Date(normalizedOrder.updatedAt).toLocaleString() : "N/A"}
+                      {"Confirmed at " + (normalizedOrder.updatedAt ? formatToVietnamTime(normalizedOrder.updatedAt) : "N/A")}
                     </Message>
                   ) : (
                     <Typography variant="body2" color="textSecondary" mt={2} mb={2}>
@@ -361,7 +362,7 @@ const UserOrderScreen = ({ match, history }) => {
                   </ListItemAvatar>
                   {normalizedOrder.isPaid ? (
                     <Message severity="success" mt={8}>
-                      Paid on {normalizedOrder.paidAt ? new Date(normalizedOrder.paidAt).toLocaleString() : "N/A"}
+                      {"Paid on " + (normalizedOrder.paidAt ? formatToVietnamTime(normalizedOrder.paidAt) : "N/A")}
                     </Message>
                   ) : (
                     <Typography variant="body2" color="textSecondary" mt={2}>

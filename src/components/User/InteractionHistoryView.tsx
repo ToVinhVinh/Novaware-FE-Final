@@ -16,6 +16,7 @@ import {
     CircularProgress,
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
+import { formatToVietnamTime } from '../../utils/dateUtils';
 import { toast } from 'react-toastify';
 
 const InteractionHistoryView: React.FC = () => {
@@ -108,7 +109,7 @@ const InteractionHistoryView: React.FC = () => {
                                                     />
                                                 </TableCell>
                                                 <TableCell>
-                                                    {new Date(interaction.timestamp).toLocaleString()}
+                                                    {formatToVietnamTime(interaction.timestamp)}
                                                 </TableCell>
                                             </TableRow>
                                         ))
@@ -156,7 +157,7 @@ const InteractionHistoryView: React.FC = () => {
                                                     {interaction.rating ? `⭐ ${interaction.rating}` : '-'}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {new Date(interaction.timestamp).toLocaleString()}
+                                                    {formatToVietnamTime(interaction.timestamp)}
                                                 </TableCell>
                                             </TableRow>
                                         ))

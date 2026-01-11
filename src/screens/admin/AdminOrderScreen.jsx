@@ -22,6 +22,7 @@ import AssignmentIcon from "@material-ui/icons/Assignment";
 import clsx from "clsx";
 import StepConnector from "@material-ui/core/StepConnector";
 import { withStyles } from "@material-ui/core/styles";
+import { formatToVietnamTime } from "../../utils/dateUtils";
 import {
   Container,
   Grid,
@@ -493,7 +494,7 @@ const AdminOrderScreen = ({ match, history }) => {
                             <EventIcon /> Created Date
                           </Typography>
                           <Typography className={classes.infoValue}>
-                            {new Date(order.created_at || order.createdAt).toLocaleString()}
+                            {formatToVietnamTime(order.created_at || order.createdAt)}
                           </Typography>
                         </Grid>
                         <Grid item xs={12} sm={6}>

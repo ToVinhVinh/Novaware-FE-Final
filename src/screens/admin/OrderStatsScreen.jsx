@@ -55,7 +55,9 @@ import {
   useGetRecentOrders,
   useGetProductCategories,
   useGetSalesByGender,
+  useGetOrderStats,
 } from "../../hooks/api/useAdminStats";
+import { formatToVietnamDate } from '../../utils/dateUtils';
 import Meta from "../../components/Meta";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
@@ -248,7 +250,7 @@ const OrderStatsScreen = ({ history }) => {
   return (
     <Container className={classes.container}>
       <Meta title="Dashboard | Statistics" />
-      
+
       <Typography variant="h4" gutterBottom style={{ fontWeight: 700, marginBottom: 32 }}>
         📊 Dashboard Statistics
       </Typography>
@@ -449,7 +451,7 @@ const OrderStatsScreen = ({ history }) => {
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          {new Date(order.created_at).toLocaleDateString()}
+                          {formatToVietnamDate(order.created_at)}
                         </TableCell>
                         <TableCell align="right" style={{ fontWeight: 600 }}>
                           ${order.total_price.toFixed(2)}

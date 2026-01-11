@@ -39,6 +39,8 @@ import {
 	useGetProductCategories,
 	useGetSalesByGender,
 } from '../../hooks/api/useAdminStats';
+import { getAdminStats } from '../../lib/api/adminStats';
+import { formatToVietnamDate } from '../../utils/dateUtils';
 import Meta from '../../components/Meta';
 import Message from '../../components/Message';
 
@@ -226,9 +228,9 @@ const StatisticsScreen = () => {
 	// Fetch all data using hooks
 	const { data: overviewData, isLoading: overviewLoading, error: overviewError } = useGetOverviewStats();
 	const { data: revenueData, isLoading: revenueLoading } = useGetRevenueChart({ period: revenuePeriod });
-	const { data: topProductsData, isLoading: topProductsLoading } = useGetTopProducts({ 
-		sort_by: topProductsSort, 
-		limit: topProductsLimit 
+	const { data: topProductsData, isLoading: topProductsLoading } = useGetTopProducts({
+		sort_by: topProductsSort,
+		limit: topProductsLimit
 	});
 	const { data: demographicsData, isLoading: demographicsLoading } = useGetUserDemographics();
 	const { data: orderStatusData, isLoading: orderStatusLoading } = useGetOrderStatus();
@@ -348,12 +350,12 @@ const StatisticsScreen = () => {
 						<XAxis dataKey="date" stroke="#718096" />
 						<YAxis yAxisId="left" stroke="#DD8190" />
 						<YAxis yAxisId="right" orientation="right" stroke="#DB2777" />
-						<Tooltip 
-							contentStyle={{ 
-								background: 'white', 
-								border: 'none', 
-								borderRadius: 8, 
-								boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+						<Tooltip
+							contentStyle={{
+								background: 'white',
+								border: 'none',
+								borderRadius: 8,
+								boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
 							}}
 							formatter={(value, name) => {
 								if (name === 'revenue') return [formatCurrency(value), 'Revenue'];
@@ -414,27 +416,27 @@ const StatisticsScreen = () => {
 					<BarChart data={products} layout="vertical">
 						<CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
 						<XAxis type="number" stroke="#718096" />
-						<YAxis 
-							dataKey="name" 
-							type="category" 
-							width={200} 
+						<YAxis
+							dataKey="name"
+							type="category"
+							width={200}
 							stroke="#718096"
 							tick={{ fontSize: 12 }}
 						/>
-						<Tooltip 
-							contentStyle={{ 
-								background: 'white', 
-								border: 'none', 
-								borderRadius: 8, 
-								boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+						<Tooltip
+							contentStyle={{
+								background: 'white',
+								border: 'none',
+								borderRadius: 8,
+								boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
 							}}
 							formatter={(value, name) => {
 								if (name === 'revenue') return [formatCurrency(value), 'Revenue'];
 								return [formatNumber(value), 'Quantity'];
 							}}
 						/>
-						<Bar 
-							dataKey={topProductsSort === 'revenue' ? 'revenue' : 'quantity'} 
+						<Bar
+							dataKey={topProductsSort === 'revenue' ? 'revenue' : 'quantity'}
 							fill="#DD8190"
 							radius={[0, 8, 8, 0]}
 						/>
@@ -500,12 +502,12 @@ const StatisticsScreen = () => {
 								<CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
 								<XAxis dataKey="name" stroke="#718096" />
 								<YAxis stroke="#718096" />
-								<Tooltip 
-									contentStyle={{ 
-										background: 'white', 
-										border: 'none', 
-										borderRadius: 8, 
-										boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+								<Tooltip
+									contentStyle={{
+										background: 'white',
+										border: 'none',
+										borderRadius: 8,
+										boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
 									}}
 								/>
 								<Bar dataKey="value" fill="#DB2777" radius={[8, 8, 0, 0]} />
@@ -616,7 +618,7 @@ const StatisticsScreen = () => {
 									#{order.id.slice(-8)}
 								</Typography>
 								<Typography variant="caption" color="textSecondary">
-									{new Date(order.created_at).toLocaleDateString('en-US')}
+									{formatToVietnamDate(order.created_at)}
 								</Typography>
 							</Box>
 							<Box>
@@ -707,12 +709,12 @@ const StatisticsScreen = () => {
 								<CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
 								<XAxis dataKey="name" stroke="#718096" />
 								<YAxis stroke="#718096" />
-								<Tooltip 
-									contentStyle={{ 
-										background: 'white', 
-										border: 'none', 
-										borderRadius: 8, 
-										boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+								<Tooltip
+									contentStyle={{
+										background: 'white',
+										border: 'none',
+										borderRadius: 8,
+										boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
 									}}
 									formatter={(value) => formatCurrency(value)}
 								/>

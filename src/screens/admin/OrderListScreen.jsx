@@ -39,6 +39,7 @@ import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import Meta from "../../components/Meta";
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
+import { formatToVietnamTime } from "../../utils/dateUtils";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -159,7 +160,7 @@ const OrderListScreen = ({ history }) => {
 
   const { data: ordersResponse, isLoading: loading, error } = useGetOrders(queryParams);
   const ordersData = ordersResponse?.data?.orders || [];
-  
+
   // Transform orders data to match DataGrid format
   const orders = ordersData.map((order) => ({
     ...order,
@@ -217,13 +218,7 @@ const OrderListScreen = ({ history }) => {
       sortable: false,
       valueFormatter: ({ value }) => {
         if (!value) return "N/A";
-        return new Date(value).toLocaleString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        return formatToVietnamTime(value);
       },
     },
     {
