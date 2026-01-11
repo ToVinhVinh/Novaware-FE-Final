@@ -453,7 +453,7 @@ const UserOrderScreen = ({ match, history }) => {
                                             };
                                             const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
                                             const hasReviewed = item.reviews?.some((r) => {
-                                              const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId) || getUserID(r);
+                                              const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId);
                                               return String(rId).trim() === String(curId).trim() && rId !== "";
                                             });
                                             return (
@@ -500,7 +500,7 @@ const UserOrderScreen = ({ match, history }) => {
                                           };
                                           const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
                                           const hasReviewed = item.reviews?.some((r) => {
-                                            const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId) || getUserID(r);
+                                            const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId);
                                             return String(rId).trim() === String(curId).trim() && rId !== "";
                                           });
                                           return (
