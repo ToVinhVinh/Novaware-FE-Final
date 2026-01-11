@@ -633,6 +633,7 @@ const UserOrderScreen = ({ match, history }) => {
           onClose={handleCloseReviewModal}
           product={reviewModal.product}
           userId={userInfo?._id || userInfo?.id}
+          orderId={orderId}
         />
       </Container>
     )

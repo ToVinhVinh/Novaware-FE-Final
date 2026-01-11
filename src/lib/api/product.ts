@@ -235,7 +235,9 @@ export const deleteProduct = async (id: string): Promise<IDeleteProductResponse>
 
 // Create Review
 export const createReview = async (id: string, body: ICreateReviewBody): Promise<ICreateReviewResponse> => {
-	return await sendPost(`/products/${id}/reviews`, body);
+	const { order_id, ...reviewBody } = body;
+	const queryParams = order_id ? { "order-id": order_id } : undefined;
+	return await sendPost(`/products/${id}/reviews`, reviewBody, queryParams);
 };
 
 export const getTopProducts = async (query?: IGetTopProductsQuery): Promise<IGetTopProductsResponse> => {
@@ -280,7 +282,7 @@ export const searchProductsByName = async (query?: ISearchProductsByNameQuery): 
 		if (searchTerm) {
 			normalizedQuery.q = searchTerm;
 		}
-		
+
 		if (query.category) normalizedQuery.category = query.category;
 		if (query.articleType) normalizedQuery.articleType = query.articleType;
 		if (query.gender) normalizedQuery.gender = query.gender;
@@ -292,9 +294,9 @@ export const searchProductsByName = async (query?: ISearchProductsByNameQuery): 
 		if (query.page !== undefined) normalizedQuery.page = query.page;
 		if (query.page_size !== undefined) normalizedQuery.page_size = query.page_size;
 	}
-	
+
 	const response = await sendGet(`/products/search_by_name`, normalizedQuery);
-	
+
 	if (response?.data?.products && Array.isArray(response.data.products)) {
 		return {
 			...response,
@@ -304,7 +306,7 @@ export const searchProductsByName = async (query?: ISearchProductsByNameQuery): 
 			},
 		};
 	}
-	
+
 	return response;
 };
 

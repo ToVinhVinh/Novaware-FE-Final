@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ReviewProductModal = ({ open, onClose, product, userId }) => {
+const ReviewProductModal = ({ open, onClose, product, userId, orderId }) => {
   const classes = useStyles();
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -90,7 +90,7 @@ const ReviewProductModal = ({ open, onClose, product, userId }) => {
     try {
       await createReviewMutation.mutateAsync({
         id: product.product_id || product._id,
-        body: { rating, comment },
+        body: { rating, comment, order_id: orderId },
       });
 
       // Track REVIEW interaction

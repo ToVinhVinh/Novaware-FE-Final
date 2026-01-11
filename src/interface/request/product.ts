@@ -66,6 +66,7 @@ export interface IUpdateProductBody {
 export interface ICreateReviewBody {
 	rating: number;
 	comment: string;
+	order_id?: string;
 }
 
 export interface IGetTopProductsQuery {

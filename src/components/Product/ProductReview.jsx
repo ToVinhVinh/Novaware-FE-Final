@@ -92,6 +92,27 @@ const ProductReview = ({ reviews, productId }) => {
     const index = avatarImages.length ? hash % avatarImages.length : 0;
     return avatarImages[index] || male30;
   };
+
+  // Format date to Vietnam timezone (UTC+7) and Vietnamese format
+  const formatToVietnamTime = (dateString) => {
+    try {
+      const utcDate = new Date(dateString);
+      // Add 7 hours (in milliseconds) for Vietnam timezone
+      const date = new Date(utcDate.getTime() + (7 * 60 * 60 * 1000));
+
+      // Use UTC methods to get the correct date/time components
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const year = date.getUTCFullYear();
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [message, setMessage] = useState("");
@@ -173,7 +194,7 @@ const ProductReview = ({ reviews, productId }) => {
                           {review.name}
                         </Typography>
                         <Typography variant="body2" color="textSecondary">
-                          {review.createdAt.substring(0, 10)}
+                          {formatToVietnamTime(review.createdAt)}
                         </Typography>
                       </div>
                       <Rating
