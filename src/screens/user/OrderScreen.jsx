@@ -180,6 +180,7 @@ const UserOrderScreen = ({ match, history }) => {
 
   // Support both 'items' and 'orderItems' from API response
   const orderItems = normalizedOrder?.items || [];
+  const currentUserId = userInfo?._id || userInfo?.id || normalizedOrder?.userId;
 
   if (!loading && normalizedOrder) {
     const addDecimals = (num) => {
@@ -393,7 +394,7 @@ const UserOrderScreen = ({ match, history }) => {
                             </TableRow>
                           </TableHead>
                           <TableBody>
-                            {orderItems.map((item) => {
+                            {orderItems.map((item, index) => {
                               // Support both camelCase and snake_case
                               const sizeSelected = item.sizeSelected || item.size_selected || "";
                               const colorSelected = item.colorSelected || item.color_selected || "";
@@ -406,7 +407,7 @@ const UserOrderScreen = ({ match, history }) => {
                                   : colorSelected;
 
                               return (
-                                <TableRow key={item.name}>
+                                <TableRow key={item.product_id ? `${item.product_id}-${index}` : `${item.name}-${index}`}>
                                   <TableCell component="th" scope="item">
                                     <ListItem disableGutters>
                                       <ListItemAvatar>
@@ -445,9 +446,16 @@ const UserOrderScreen = ({ match, history }) => {
                                       {normalizedOrder.isDelivered && (
                                         <Box mt={2} display="flex" justifyContent="center">
                                           {(() => {
-                                            const hasReviewed = item.reviews?.some(
-                                              (r) => (r.user_id || r.user) === (userInfo?._id || userInfo?.id)
-                                            );
+                                            const getUserID = (u) => {
+                                              if (!u) return "";
+                                              if (typeof u === "string") return u;
+                                              return u._id || u.id || "";
+                                            };
+                                            const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
+                                            const hasReviewed = item.reviews?.some((r) => {
+                                              const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId) || getUserID(r);
+                                              return String(rId).trim() === String(curId).trim() && rId !== "";
+                                            });
                                             return (
                                               <Button
                                                 variant="outlined"
@@ -459,6 +467,7 @@ const UserOrderScreen = ({ match, history }) => {
                                                 style={{
                                                   borderRadius: 6,
                                                   textTransform: "none",
+                                                  backgroundColor: hasReviewed ? "#f5f5f5" : "transparent",
                                                 }}
                                               >
                                                 {hasReviewed ? "Product Reviewed" : "Review Product"}
@@ -484,9 +493,16 @@ const UserOrderScreen = ({ match, history }) => {
                                     {normalizedOrder.isDelivered && (
                                       <TableCell align="right">
                                         {(() => {
-                                          const hasReviewed = item.reviews?.some(
-                                            (r) => (r.user_id || r.user) === (userInfo?._id || userInfo?.id)
-                                          );
+                                          const getUserID = (u) => {
+                                            if (!u) return "";
+                                            if (typeof u === "string") return u;
+                                            return u._id || u.id || "";
+                                          };
+                                          const curId = getUserID(userInfo) || getUserID(normalizedOrder?.userId);
+                                          const hasReviewed = item.reviews?.some((r) => {
+                                            const rId = getUserID(r.user_id) || getUserID(r.user) || getUserID(r.userId) || getUserID(r);
+                                            return String(rId).trim() === String(curId).trim() && rId !== "";
+                                          });
                                           return (
                                             <Button
                                               variant="outlined"
@@ -497,6 +513,7 @@ const UserOrderScreen = ({ match, history }) => {
                                               style={{
                                                 borderRadius: 6,
                                                 textTransform: "none",
+                                                backgroundColor: hasReviewed ? "#f5f5f5" : "transparent",
                                               }}
                                             >
                                               {hasReviewed ? "Product Reviewed" : "Review Product"}
