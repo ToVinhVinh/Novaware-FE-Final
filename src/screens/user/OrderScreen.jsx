@@ -182,22 +182,6 @@ const UserOrderScreen = ({ match, history }) => {
   const orderItems = normalizedOrder?.items || [];
   const currentUserId = userInfo?._id || userInfo?.id || normalizedOrder?.userId;
 
-  console.log("DEBUG ORDER SCREEN FULL:", {
-    userInfo: JSON.parse(JSON.stringify(userInfo || {})),
-    normalizedOrder: JSON.parse(JSON.stringify(normalizedOrder || {}))
-  });
-
-  console.log("DEBUG ORDER SCREEN SUMMARY:", {
-    orderId,
-    userInfoId: userInfo?._id || userInfo?.id,
-    orderUserId: normalizedOrder?.userId,
-    currentUserId,
-    items: orderItems.map(i => ({
-      name: i.name,
-      reviewers: i.reviews?.map(r => r.user_id || r.user || r.userId)
-    }))
-  });
-
   if (!loading && normalizedOrder) {
     const addDecimals = (num) => {
       return (Math.round(num * 100) / 100).toFixed(2);
@@ -532,10 +516,8 @@ const UserOrderScreen = ({ match, history }) => {
                                             const nameMatch = curName !== "" && rName !== "" && rName === curName;
 
                                             const match = idMatch || nameMatch;
-                                            console.log(`DEBUG REVIEW: Item: ${item.name}, Current: [ID:${curId}, Name:${curName}], ReviewAuthor: [ID:${rId}, Name:${rName}], Match: ${match} (ID:${idMatch}, Name:${nameMatch})`);
                                             return match;
                                           });
-                                          console.log(`DEBUG FINAL: Item: ${item.name}, hasReviewed: ${hasReviewed}`);
                                           return (
                                             <Button
                                               variant="outlined"
