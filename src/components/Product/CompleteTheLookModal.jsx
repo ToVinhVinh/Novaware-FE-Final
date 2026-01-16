@@ -612,48 +612,48 @@ const CompleteTheLookModal = ({ open, onClose, userId, productId, user, recommen
 
         return recommendationData.outfits
             .map((outfit) => {
-            const products = [];
+                const products = [];
 
-            (outfit.products || []).forEach((item) => {
-                const product = item.product;
-                if (!product) return;
+                (outfit.products || []).forEach((item) => {
+                    const product = item.product;
+                    if (!product) return;
 
-                const subCategory = product.subCategory || "Other";
-                const images = parseImages(product.images);
+                    const subCategory = product.subCategory || "Other";
+                    const images = parseImages(product.images);
 
-                const firstVariantPrice = product.variants && product.variants.length > 0
-                    ? product.variants[0].price || 0
-                    : product.price || 0;
+                    const firstVariantPrice = product.variants && product.variants.length > 0
+                        ? product.variants[0].price || 0
+                        : product.price || 0;
 
-                products.push({
-                    _id: item.product_id,
-                    name: product.productDisplayName || product.name || "Product",
-                    product_id: item.product_id,
-                    subCategory,
-                    price: firstVariantPrice,
-                    sale: product.sale || 0,
-                    images,
-                    articleType: product.articleType,
-                    usage: product.usage,
-                    season: product.season,
+                    products.push({
+                        _id: item.product_id,
+                        name: product.productDisplayName || product.name || "Product",
+                        product_id: item.product_id,
+                        subCategory,
+                        price: firstVariantPrice,
+                        sale: product.sale || 0,
+                        images,
+                        articleType: product.articleType,
+                        usage: product.usage,
+                        season: product.season,
+                    });
                 });
+
+                const totalPrice = products.reduce((sum, p) => {
+                    const basePrice = p.price || 0;
+                    const salePercent = p.sale || 0;
+                    const salePrice = basePrice * (1 - salePercent / 100);
+                    return sum + salePrice;
+                }, 0);
+
+                return {
+                    name: `Outfit ${outfit.outfit_number}`,
+                    products,
+                    totalPrice,
+                    compatibilityScore: outfit.score || 0,
+                    gender: recommendationData.metadata?.user_gender || user?.gender || "Unisex",
+                };
             });
-
-            const totalPrice = products.reduce((sum, p) => {
-                const basePrice = p.price || 0;
-                const salePercent = p.sale || 0;
-                const salePrice = basePrice * salePercent / 100;
-                return sum + salePrice;
-            }, 0);
-
-            return {
-                name: `Outfit ${outfit.outfit_number}`,
-                products,
-                totalPrice,
-                compatibilityScore: outfit.score || 0,
-                gender: recommendationData.metadata?.user_gender || user?.gender || "Unisex",
-            };
-        });
     }, [recommendationData, user?.gender]);
 
     const getCategoryIcon = (categoryName) => {
@@ -710,7 +710,7 @@ const CompleteTheLookModal = ({ open, onClose, userId, productId, user, recommen
                 const currentIndex = carouselIndices[carouselKey] || 0;
                 const products = productsBySubCategory[subCategory] || [];
                 const currentProduct = products[currentIndex];
-                
+
                 if (currentProduct) {
                     displayedProducts.push({
                         product_id: currentProduct._id || currentProduct.product_id,
@@ -727,7 +727,7 @@ const CompleteTheLookModal = ({ open, onClose, userId, productId, user, recommen
             const totalPrice = displayedProducts.reduce((sum, p) => {
                 const basePrice = p.price || 0;
                 const salePercent = p.sale || 0;
-                const salePrice = salePercent ? basePrice * salePercent / 100 : basePrice;
+                const salePrice = basePrice * (1 - salePercent / 100);
                 return sum + salePrice;
             }, 0);
 
@@ -835,7 +835,7 @@ const CompleteTheLookModal = ({ open, onClose, userId, productId, user, recommen
                         {(() => {
                             const basePrice = product.price || 0;
                             const salePercent = product.sale || 0;
-                            const salePrice = salePercent ? basePrice * salePercent / 100 : basePrice;
+                            const salePrice = basePrice * (1 - salePercent / 100);
                             return `$${salePrice.toFixed(2)}`;
                         })()}
                         {product.sale && product.sale > 0 && (
