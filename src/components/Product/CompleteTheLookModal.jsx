@@ -852,11 +852,11 @@ const CompleteTheLookModal = ({ open, onClose, userId, productId, user, recommen
                             </Typography>
                         )}
                     </Typography>
-                    {showScore && product.score !== undefined && (
+                    {/* {showScore && product.score !== undefined && (
                         <Box style={{ marginTop: 8 }}>
                             {getScoreChip(product.score)}
                         </Box>
-                    )}
+                    )} */}
                     <Button
                         variant="outlined"
                         size="medium"
